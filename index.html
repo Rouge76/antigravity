@@ -1,0 +1,525 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Chronicle | Professional Work Log &amp; Activity Suite</title>
+  <meta name="description" content="A modern, high-performance work logging, time tracking, analytics, and automated standup report generator suite.">
+  <meta name="author" content="DeepMind Antigravity">
+  
+  <!-- Favicon -->
+  <link rel="icon" type="image/png" href="assets/logo.png">
+
+  <!-- Modern Google Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;700&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+
+  <!-- Stylesheets -->
+  <link rel="stylesheet" href="css/style.css">
+  <link rel="stylesheet" href="css/components.css">
+</head>
+<body>
+  <div class="app-layout">
+    
+    <!-- Top Header Bar -->
+    <header class="top-header">
+      <div class="brand-section" id="brand-home-btn" onclick="window.workApp.switchTab('logs')">
+        <img src="assets/logo.png" alt="Chronicle Logo" class="brand-logo-img">
+        <div class="brand-text-wrap">
+          <div class="brand-title">
+            Chronicle
+            <span class="brand-badge">PRO</span>
+          </div>
+          <span class="brand-subtext">Work Log &amp; Standup Suite</span>
+        </div>
+      </div>
+
+      <!-- Live Active Session Timer Bar -->
+      <div class="header-timer-pill" id="header-timer-pill">
+        <div class="timer-indicator-dot" id="timer-status-dot"></div>
+        <div style="display: flex; flex-direction: column;">
+          <span class="timer-display-code" id="timer-display">00:00:00</span>
+          <input type="text" id="quick-timer-task" placeholder="What are you working on?" style="background: transparent; border: none; font-size: 0.72rem; color: var(--text-secondary); outline: none; width: 140px;">
+        </div>
+        <div class="timer-actions-mini">
+          <button class="btn btn-emerald btn-sm" id="timer-start-btn" title="Start Session Stopwatch (Press S)">
+            <svg width="12" height="12" viewBox="0 0 24 24" fill="currentColor"><polygon points="5 3 19 12 5 21 5 3"></polygon></svg>
+            Start
+          </button>
+          <button class="btn btn-secondary btn-sm" id="timer-pause-btn" style="display: none;" title="Pause Timer">
+            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><rect x="6" y="4" width="4" height="16"></rect><rect x="14" y="4" width="4" height="16"></rect></svg>
+          </button>
+          <button class="btn btn-primary btn-sm" id="timer-log-btn" style="display: none;" title="Save Session to Work Log">
+            Log Work
+          </button>
+          <button class="btn btn-ghost btn-sm" id="timer-reset-btn" style="display: none;" title="Reset Timer">
+            &times;
+          </button>
+        </div>
+      </div>
+
+      <!-- Global Action CTAs -->
+      <div class="header-actions">
+        <button class="btn btn-primary" id="new-log-cta" title="Shortcut: Press 'N'">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg>
+          + Log Work
+        </button>
+        <button class="btn btn-secondary btn-icon" id="theme-toggle-btn" title="Toggle Dark/Light Mode">
+          <span id="theme-icon">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path></svg>
+          </span>
+        </button>
+        <button class="btn btn-secondary btn-icon" id="settings-btn" title="Settings &amp; Data Management">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"></circle><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"></path></svg>
+        </button>
+      </div>
+    </header>
+
+    <!-- Navigation Tabs Bar -->
+    <nav class="nav-tab-bar" aria-label="Work log views">
+      <button class="nav-tab-btn active" data-tab="logs" id="tab-btn-logs">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="8" y1="6" x2="21" y2="6"></line><line x1="8" y1="12" x2="21" y2="12"></line><line x1="8" y1="18" x2="21" y2="18"></line><line x1="3" y1="6" x2="3.01" y2="6"></line><line x1="3" y1="12" x2="3.01" y2="12"></line><line x1="3" y1="18" x2="3.01" y2="18"></line></svg>
+        Logs Feed
+      </button>
+      <button class="nav-tab-btn" data-tab="analytics" id="tab-btn-analytics">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 20V10"></path><path d="M12 20V4"></path><path d="M6 20v-6"></path></svg>
+        Analytics &amp; Trends
+      </button>
+      <button class="nav-tab-btn" data-tab="calendar" id="tab-btn-calendar">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect><line x1="16" y1="2" x2="16" y2="6"></line><line x1="8" y1="2" x2="8" y2="6"></line><line x1="3" y1="10" x2="21" y2="10"></line></svg>
+        Calendar &amp; Heatmap
+      </button>
+      <button class="nav-tab-btn" data-tab="kanban" id="tab-btn-kanban">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2"></rect><line x1="9" y1="3" x2="9" y2="21"></line><line x1="15" y1="3" x2="15" y2="21"></line></svg>
+        Kanban Board
+      </button>
+      <button class="nav-tab-btn" data-tab="standup" id="tab-btn-standup">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path></svg>
+        Standup &amp; Digest Generator
+      </button>
+    </nav>
+
+    <!-- Main Workspace Area -->
+    <main class="main-wrapper">
+      
+      <!-- Quick Productivity Metrics Banner (Global) -->
+      <section class="stats-banner-grid" aria-label="Key productivity statistics">
+        <div class="stat-card" style="--card-accent: var(--accent-primary);">
+          <div class="stat-header">
+            <span>Total Production Time</span>
+            <div class="stat-icon-wrapper">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"></circle><polyline points="12 6 12 12 16 14"></polyline></svg>
+            </div>
+          </div>
+          <div class="stat-value" id="stat-total-hours">-- <span class="stat-unit">hrs</span></div>
+          <div class="stat-footer">
+            <span class="stat-trend-up">↑ 14%</span> vs previous cycle
+          </div>
+        </div>
+
+        <div class="stat-card" style="--card-accent: var(--accent-emerald);">
+          <div class="stat-header">
+            <span>Tasks Completed</span>
+            <div class="stat-icon-wrapper" style="color: var(--accent-emerald);">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path><polyline points="22 4 12 14.01 9 11.01"></polyline></svg>
+            </div>
+          </div>
+          <div class="stat-value" id="stat-tasks-completed">-- <span class="stat-unit">tasks</span></div>
+          <div class="stat-footer">
+            <span>Verified deliverables logged</span>
+          </div>
+        </div>
+
+        <div class="stat-card" style="--card-accent: var(--accent-amber);">
+          <div class="stat-header">
+            <span>Avg Focus Rating</span>
+            <div class="stat-icon-wrapper" style="color: var(--accent-amber);">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"></polygon></svg>
+            </div>
+          </div>
+          <div class="stat-value" id="stat-avg-focus">-- <span class="stat-unit">/ 5.0</span></div>
+          <div class="stat-footer">
+            <span>Deep work efficiency score</span>
+          </div>
+        </div>
+
+        <div class="stat-card" style="--card-accent: var(--accent-cyan);">
+          <div class="stat-header">
+            <span>Logging Streak</span>
+            <div class="stat-icon-wrapper" style="color: var(--accent-cyan);">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M8.5 14.5A2.5 2.5 0 0 0 11 12c0-1.38-.5-2-1-3-1.072-2.143-.224-4.054 2-6 .5 2.5 2 4.9 4 6.5 2 1.6 3 3.5 3 5.5a7 7 0 1 1-14 0c0-1.153.433-2.294 1-3a2.5 2.5 0 0 0 2.5 2.5z"></path></svg>
+            </div>
+          </div>
+          <div class="stat-value" id="stat-streak-days">-- <span class="stat-unit">days 🔥</span></div>
+          <div class="stat-footer">
+            <span>Continuous consistency</span>
+          </div>
+        </div>
+      </section>
+
+      <!-- VIEW 1: Logs Feed & Timeline -->
+      <section class="view-panel active" id="logs-view">
+        
+        <!-- Filter & Search Controls Bar -->
+        <div class="filter-bar">
+          <div class="search-input-wrap">
+            <svg class="search-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
+            <input type="text" class="form-control search-input" id="search-logs-input" placeholder="Search tasks, deliverables, projects, or #tags...">
+          </div>
+
+          <div class="filter-actions-group">
+            <select class="filter-select" id="filter-project-select">
+              <option value="all">All Projects</option>
+            </select>
+
+            <select class="filter-select" id="filter-status-select">
+              <option value="all">All Statuses</option>
+              <option value="completed">Completed</option>
+              <option value="in-progress">In Progress</option>
+              <option value="in-review">In Review</option>
+              <option value="blocked">Blocked</option>
+            </select>
+
+            <select class="filter-select" id="filter-date-select">
+              <option value="all">All Time</option>
+              <option value="today">Today</option>
+              <option value="yesterday">Yesterday</option>
+              <option value="week">Past 7 Days</option>
+              <option value="month">Past 30 Days</option>
+            </select>
+
+            <button class="btn btn-secondary btn-sm" onclick="window.workApp.clearFilters()" title="Reset all search filters">
+              Reset
+            </button>
+          </div>
+        </div>
+
+        <!-- Render Target for Work Log Feed -->
+        <div id="work-logs-feed"></div>
+      </section>
+
+      <!-- VIEW 2: Analytics & Trends -->
+      <section class="view-panel" id="analytics-view">
+        <div class="analytics-grid">
+          
+          <!-- Bar Chart Card -->
+          <div class="chart-card">
+            <div class="chart-header">
+              <div>
+                <h3 class="chart-title">Production Hours (Past 7 Days)</h3>
+                <span style="font-size: 0.78rem; color: var(--text-secondary);">Daily breakdown against 8h target</span>
+              </div>
+              <span class="metric-pill" style="color: var(--accent-cyan);">Daily Rhythm</span>
+            </div>
+            <div id="daily-bar-chart"></div>
+          </div>
+
+          <!-- Project Donut Card -->
+          <div class="chart-card">
+            <div class="chart-header">
+              <div>
+                <h3 class="chart-title">Project Distribution</h3>
+                <span style="font-size: 0.78rem; color: var(--text-secondary);">Time share by project</span>
+              </div>
+            </div>
+            <div id="project-donut-chart"></div>
+          </div>
+        </div>
+
+        <!-- Category Breakdown Card -->
+        <div class="chart-card">
+          <div class="chart-header">
+            <div>
+              <h3 class="chart-title">Activity Category Allocation</h3>
+              <span style="font-size: 0.78rem; color: var(--text-secondary);">Engineering, Design, Meetings, Documentation, &amp; Debugging</span>
+            </div>
+          </div>
+          <div id="category-breakdown-container" style="padding-top: 0.5rem;"></div>
+        </div>
+      </section>
+
+      <!-- VIEW 3: Monthly Calendar & Heatmap -->
+      <section class="view-panel" id="calendar-view">
+        <div class="calendar-container">
+          <div class="calendar-nav-bar">
+            <div>
+              <h2 class="calendar-month-title" id="calendar-month-title">October 2026</h2>
+              <span style="font-size: 0.8rem; color: var(--text-secondary);">Click any day to view logged activity</span>
+            </div>
+            <div style="display: flex; gap: 0.5rem;">
+              <button class="btn btn-secondary btn-sm" id="cal-prev-month">&larr; Prev</button>
+              <button class="btn btn-secondary btn-sm" id="cal-today-btn">Current Month</button>
+              <button class="btn btn-secondary btn-sm" id="cal-next-month">Next &rarr;</button>
+            </div>
+          </div>
+
+          <div class="calendar-grid" id="calendar-days-grid"></div>
+        </div>
+      </section>
+
+      <!-- VIEW 4: Kanban Board View -->
+      <section class="view-panel" id="kanban-view">
+        <div class="kanban-board" id="kanban-board-container"></div>
+      </section>
+
+      <!-- VIEW 5: Standup & Digest Generator -->
+      <section class="view-panel" id="standup-view">
+        <div class="standup-layout">
+          
+          <!-- Generator Sidebar Options -->
+          <div class="standup-sidebar">
+            <h3 style="font-size: 1.05rem; font-weight: 700; display: flex; align-items: center; gap: 0.5rem;">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="color: var(--accent-primary);"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline><line x1="16" y1="13" x2="8" y2="13"></line><line x1="16" y1="17" x2="8" y2="17"></line><polyline points="10 9 9 9 8 9"></polyline></svg>
+              Standup Config
+            </h3>
+            
+            <div class="form-group">
+              <label class="form-label" for="standup-format-select">Report Format</label>
+              <select class="form-control" id="standup-format-select">
+                <option value="slack">Slack / Discord Markdown</option>
+                <option value="executive">Executive / Client Digest</option>
+                <option value="notion">Notion / Markdown Table</option>
+                <option value="plain">Clean Plain Text</option>
+              </select>
+            </div>
+
+            <div class="form-group">
+              <label class="form-label" for="standup-date-preset">Target Period</label>
+              <select class="form-control" id="standup-date-preset">
+                <option value="today">Today's Standup</option>
+                <option value="yesterday">Yesterday's Work</option>
+                <option value="today_yesterday">Yesterday &amp; Today</option>
+                <option value="past_week">Weekly Digest (Past 7 Days)</option>
+              </select>
+            </div>
+
+            <div style="display: flex; flex-direction: column; gap: 0.65rem; margin-top: auto;">
+              <button class="btn btn-primary" id="standup-copy-btn">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path></svg>
+                Copy to Clipboard
+              </button>
+              <button class="btn btn-secondary" id="standup-refresh-btn">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="23 4 23 10 17 10"></polyline><polyline points="1 20 1 14 7 14"></polyline><path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"></path></svg>
+                Regenerate Text
+              </button>
+              <button class="btn btn-ghost" onclick="window.print()">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 6 2 18 2 18 9"></polyline><path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"></path><rect x="6" y="14" width="12" height="8"></rect></svg>
+                Print / Save PDF
+              </button>
+            </div>
+          </div>
+
+          <!-- Live Preview Editor -->
+          <div class="standup-preview-card">
+            <div class="standup-preview-header">
+              <span style="font-size: 0.88rem; font-weight: 700; color: var(--text-secondary);">Live Editable Output Preview</span>
+              <span style="font-size: 0.75rem; color: var(--text-muted); font-family: var(--font-mono);">Ready to paste directly into Slack or Teams</span>
+            </div>
+            <textarea class="standup-preview-textarea" id="standup-output-text" spellcheck="false"></textarea>
+          </div>
+        </div>
+      </section>
+
+    </main>
+
+    <!-- Work Log Add/Edit Modal -->
+    <div class="modal-overlay" id="work-log-modal" role="dialog" aria-modal="true" aria-labelledby="log-modal-title">
+      <div class="modal-dialog">
+        <div class="modal-header">
+          <h3 class="modal-title" id="log-modal-title">Log Work Session</h3>
+          <button class="btn btn-ghost btn-sm" data-close-modal aria-label="Close dialog">&times;</button>
+        </div>
+        <form id="work-log-form">
+          <div class="modal-body">
+            
+            <div class="form-group">
+              <label class="form-label" for="log-title">Task / Activity Title *</label>
+              <input type="text" class="form-control" id="log-title" required placeholder="e.g. Implement OAuth JWT token rotation &amp; session revocation">
+            </div>
+
+            <div class="form-row">
+              <div class="form-group">
+                <label class="form-label" for="log-project">Project / Stream *</label>
+                <input type="text" class="form-control" id="log-project" list="projects-datalist" required placeholder="e.g. Core API">
+                <datalist id="projects-datalist">
+                  <option value="Core Platform"></option>
+                  <option value="Analytics Suite"></option>
+                  <option value="Design System"></option>
+                  <option value="DevOps &amp; Cloud"></option>
+                  <option value="Security &amp; Auth"></option>
+                  <option value="Billing Engine"></option>
+                </datalist>
+              </div>
+
+              <div class="form-group">
+                <label class="form-label" for="log-category">Category</label>
+                <select class="form-control" id="log-category">
+                  <option value="Engineering">Engineering</option>
+                  <option value="Design">Design / UI-UX</option>
+                  <option value="Meeting">Meeting / Sync</option>
+                  <option value="Bug Fix">Bug Fix / QA</option>
+                  <option value="Documentation">Documentation</option>
+                  <option value="Planning">Planning &amp; Architecture</option>
+                  <option value="DevOps">DevOps &amp; Infra</option>
+                </select>
+              </div>
+            </div>
+
+            <div class="form-row">
+              <div class="form-group">
+                <label class="form-label" for="log-date">Date *</label>
+                <input type="date" class="form-control" id="log-date" required>
+              </div>
+
+              <div class="form-group">
+                <label class="form-label" for="log-start-time">Start Time</label>
+                <input type="time" class="form-control" id="log-start-time">
+              </div>
+
+              <div class="form-group">
+                <label class="form-label" for="log-end-time">End Time</label>
+                <input type="time" class="form-control" id="log-end-time">
+              </div>
+
+              <div class="form-group">
+                <label class="form-label" for="log-duration">Duration (Min) *</label>
+                <input type="number" class="form-control" id="log-duration" min="5" step="5" value="60" required>
+              </div>
+            </div>
+
+            <div class="form-row">
+              <div class="form-group">
+                <label class="form-label" for="log-status">Status</label>
+                <select class="form-control" id="log-status">
+                  <option value="completed">Completed</option>
+                  <option value="in-progress">In Progress</option>
+                  <option value="in-review">In Review</option>
+                  <option value="blocked">Blocked</option>
+                </select>
+              </div>
+
+              <div class="form-group">
+                <label class="form-label">Focus / Energy Rating</label>
+                <div class="focus-rating-picker" style="margin-top: 0.35rem;">
+                  <button type="button" class="rating-star-btn active" data-rating="1">&#9733;</button>
+                  <button type="button" class="rating-star-btn active" data-rating="2">&#9733;</button>
+                  <button type="button" class="rating-star-btn active" data-rating="3">&#9733;</button>
+                  <button type="button" class="rating-star-btn active" data-rating="4">&#9733;</button>
+                  <button type="button" class="rating-star-btn active" data-rating="5">&#9733;</button>
+                </div>
+              </div>
+            </div>
+
+            <!-- Key Accomplishments Dynamic Checklist -->
+            <div class="form-group">
+              <label class="form-label">Key Wins &amp; Deliverables (Bulleted for Standups)</label>
+              <div id="accomplishment-chips-container"></div>
+              <div style="display: flex; gap: 0.5rem; margin-top: 0.35rem;">
+                <input type="text" class="form-control" id="new-accomplishment-input" placeholder="Add an accomplishment bullet point (Press Enter)...">
+                <button type="button" class="btn btn-secondary btn-sm" id="add-accomplishment-btn">+ Add</button>
+              </div>
+            </div>
+
+            <div class="form-group">
+              <label class="form-label" for="log-blockers">Blockers or Dependencies (Optional)</label>
+              <input type="text" class="form-control" id="log-blockers" placeholder="e.g. Waiting on SecOps VPC approval, AWS quota increase...">
+            </div>
+
+            <div class="form-group">
+              <label class="form-label" for="log-details">Detailed Notes / Summary</label>
+              <textarea class="form-control" id="log-details" rows="3" placeholder="Context, decisions made, testing methodology, PR links..."></textarea>
+            </div>
+
+            <div class="form-group">
+              <label class="form-label" for="log-tags">Tags (comma-separated)</label>
+              <input type="text" class="form-control" id="log-tags" placeholder="e.g. auth, api, docker, security">
+            </div>
+
+          </div>
+          <div class="modal-footer">
+            <button type="button" class="btn btn-ghost" data-close-modal>Cancel</button>
+            <button type="submit" class="btn btn-primary" id="save-log-submit-btn">Save Log Entry</button>
+          </div>
+        </form>
+      </div>
+    </div>
+
+    <!-- Settings & Data Management Modal -->
+    <div class="modal-overlay" id="settings-modal" role="dialog" aria-modal="true" aria-labelledby="settings-modal-title">
+      <div class="modal-dialog">
+        <div class="modal-header">
+          <h3 class="modal-title" id="settings-modal-title">Settings &amp; Data Hub</h3>
+          <button class="btn btn-ghost btn-sm" data-close-modal aria-label="Close dialog">&times;</button>
+        </div>
+        <div class="modal-body" style="display: flex; flex-direction: column; gap: 1.5rem;">
+          
+          <div>
+            <h4 style="font-size: 0.95rem; font-weight: 700; margin-bottom: 0.75rem;">Sound &amp; Interaction Preferences</h4>
+            <label style="display: flex; align-items: center; gap: 0.65rem; font-size: 0.88rem; cursor: pointer;">
+              <input type="checkbox" id="setting-sound-toggle" checked>
+              <span>Enable audio chimes on timer start, pause, and pomodoro completion (Web Audio synth)</span>
+            </label>
+          </div>
+
+          <div style="border-top: 1px solid var(--border-subtle); padding-top: 1rem;">
+            <h4 style="font-size: 0.95rem; font-weight: 700; margin-bottom: 0.75rem;">Backup &amp; Export</h4>
+            <div style="display: flex; gap: 0.75rem; flex-wrap: wrap;">
+              <button class="btn btn-secondary" id="btn-export-csv">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="7 10 12 15 17 10"></polyline><line x1="12" y1="15" x2="12" y2="3"></line></svg>
+                Export CSV (Excel / Sheets)
+              </button>
+              <button class="btn btn-secondary" id="btn-export-json">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="16 18 22 12 16 6"></polyline><polyline points="8 6 2 12 8 18"></polyline></svg>
+                Export JSON Backup
+              </button>
+              <label class="btn btn-secondary" style="margin: 0; cursor: pointer;">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="17 8 12 3 7 8"></polyline><line x1="12" y1="3" x2="12" y2="15"></line></svg>
+                Import JSON
+                <input type="file" id="import-json-file" accept=".json" style="display: none;">
+              </label>
+            </div>
+          </div>
+
+          <div style="border-top: 1px solid var(--border-subtle); padding-top: 1rem;">
+            <h4 style="font-size: 0.95rem; font-weight: 700; margin-bottom: 0.75rem;">Sample Data &amp; Reset</h4>
+            <div style="display: flex; gap: 0.75rem; flex-wrap: wrap;">
+              <button class="btn btn-secondary" id="btn-reset-demo">
+                Reload Rich Demo Dataset
+              </button>
+              <button class="btn btn-danger" id="btn-clear-all">
+                Clear All Logs
+              </button>
+            </div>
+          </div>
+
+          <div style="border-top: 1px solid var(--border-subtle); padding-top: 1rem;">
+            <h4 style="font-size: 0.95rem; font-weight: 700; margin-bottom: 0.5rem;">Keyboard Shortcuts</h4>
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 0.5rem; font-size: 0.8rem; color: var(--text-secondary);">
+              <div><kbd style="background: var(--bg-tertiary); padding: 0.15rem 0.4rem; border-radius: 4px; border: 1px solid var(--border-subtle);">N</kbd> Log new work session</div>
+              <div><kbd style="background: var(--bg-tertiary); padding: 0.15rem 0.4rem; border-radius: 4px; border: 1px solid var(--border-subtle);">S</kbd> Start / Pause session timer</div>
+              <div><kbd style="background: var(--bg-tertiary); padding: 0.15rem 0.4rem; border-radius: 4px; border: 1px solid var(--border-subtle);">Esc</kbd> Close open dialogs</div>
+            </div>
+          </div>
+
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-primary" data-close-modal>Done</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Toast Notification Host -->
+    <div class="toast-container" id="toast-container" aria-live="polite"></div>
+
+  </div>
+
+  <!-- Scripts in dependency order -->
+  <script src="js/storage.js"></script>
+  <script src="js/timer.js"></script>
+  <script src="js/analytics.js"></script>
+  <script src="js/calendar.js"></script>
+  <script src="js/standup.js"></script>
+  <script src="js/app.js"></script>
+</body>
+</html>
